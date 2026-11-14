@@ -46,6 +46,8 @@ Paired differences, LightGBM minus baseline (mean over users, 95% bootstrap CI):
 | rating_band_popularity | +0.158 [0.106, 0.205] | +0.055 [0.036, 0.073] |
 | popularity | +0.194 [0.144, 0.243] | +0.057 [0.036, 0.077] |
 
+Model latency (`python -m cfrec.benchmark`, 200 real users, one user per request, single process, no Codeforces calls): p50 11.6 ms, p95 13.5 ms, p99 14.2 ms on Windows 11, 16 logical CPUs, Python 3.13.2. The live endpoint is much slower end to end because it waits on the Codeforces API (about 2 s per call, rate-limited), and a free cloud instance has far less CPU than this laptop.
+
 What this shows, and what it doesn't:
 
 * The re-ranker beats all three baselines on Hit@10 and nDCG@10, and every paired interval excludes zero. Against the strongest baseline, Hit@10 roughly doubles (0.147 to 0.305) and nDCG@10 rises from 0.046 (item-CF) to 0.082.
