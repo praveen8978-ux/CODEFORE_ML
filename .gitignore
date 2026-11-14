@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+# Downloaded Codeforces data and trained artifacts stay local
+data/
+artifacts/
+results/
