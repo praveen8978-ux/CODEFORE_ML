@@ -14,6 +14,7 @@ class UserState:
     cols: np.ndarray  # column index in Dataset.problems of every solved problem (unique)
     times: np.ndarray  # solve time (unix seconds), same order as cols
     rating: float  # rating at that moment, NaN if unknown
+    rating_estimated: bool = False  # True when the rating was guessed (unrated live user)
 
 
 class Dataset:

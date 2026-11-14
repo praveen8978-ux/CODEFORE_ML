@@ -62,9 +62,19 @@ def recommend(handle: str, k: int = Query(10, ge=1, le=50)):
     recs = rec.recommend(state, ranker, k=k)
     inference_ms = (time.perf_counter() - t1) * 1000
 
+    warnings = []
+    if state.rating_estimated:
+        warnings.append("This user has no Codeforces rating, so the rating shown is an estimate from solved problems.")
+    if len(state.cols) < rec.cfg.min_history:
+        warnings.append(
+            f"Only {len(state.cols)} solved problems found (the model was trained on users with "
+            f"{rec.cfg.min_history}+), so these recommendations may be unreliable."
+        )
     payload = {
         "handle": state.handle,
         "rating": state.rating,
+        "rating_estimated": bool(state.rating_estimated),
+        "warning": " ".join(warnings) or None,
         "solved": int(len(state.cols)),
         "fetch_ms": round(fetch_ms, 1),
         "inference_ms": round(inference_ms, 1),

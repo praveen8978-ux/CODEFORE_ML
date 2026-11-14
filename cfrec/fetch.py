@@ -117,11 +117,12 @@ def get_live_state(handle, pid_to_col, problem_ratings):
     cols = np.array([pid_to_col[p] for p in solved], dtype=int)
     times = np.array(list(solved.values()), dtype=float)
     rating = info.get("rating")
-    if rating is None:  # unrated user: estimate from what they solved
+    estimated = rating is None
+    if estimated:  # unrated user: guess from what they solved (unreliable for few solves)
         rs = problem_ratings[cols]
         rs = rs[np.isfinite(rs)]
         rating = float(np.median(rs) + 100) if len(rs) else 1200.0
-    return UserState(handle, cols, times, float(rating))
+    return UserState(handle, cols, times, float(rating), rating_estimated=estimated)
 
 
 def fetch_user(handle, raw_dir: Path):

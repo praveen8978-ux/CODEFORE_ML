@@ -60,7 +60,8 @@ f.addEventListener('submit', async (e) => {
       tr.append(td1, td2, td3); body.append(tr);
     }
     out.hidden = false;
-    status.textContent = `${data.handle} (rating ${data.rating}, ${data.solved} solved). Model time: ${data.inference_ms} ms.`;
+    const rating = data.rating_estimated ? `estimated rating ${data.rating}` : `rating ${data.rating}`;
+    status.textContent = `${data.handle} (${rating}, ${data.solved} solved). Model time: ${data.inference_ms} ms.` + (data.warning ? ' Note: ' + data.warning : '');
   } catch (err) {
     status.textContent = err.message;
   } finally { go.disabled = false; }

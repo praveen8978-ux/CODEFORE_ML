@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 
 import cfrec.api as api
 from cfrec.config import Config
+from cfrec.data import UserState
 from cfrec.fetch import HandleNotFound
 from cfrec.train import train
 import joblib
@@ -17,6 +18,9 @@ def client(small_ds, tmp_path, monkeypatch):
     states = {s.handle: s for s in small_ds.user_states(small_ds.end_time)}
 
     def fake_live(handle, pid_to_col, ratings):
+        if handle == "newbie":  # unrated, 3 solves
+            base = states[next(iter(states))]
+            return UserState("newbie", base.cols[:3], base.times[:3], 1500.0, rating_estimated=True)
         if handle not in states:
             raise HandleNotFound("not found")
         return states[handle]
@@ -36,6 +40,15 @@ def test_recommend_returns_unsolved_problems(client, small_ds):
     solved = {small_ds.problems.pid[i] for i in next(s for s in small_ds.user_states(small_ds.end_time) if s.handle == handle).cols}
     assert not ({p["pid"] for p in body["recommendations"]} & solved)
     assert body["inference_ms"] >= 0
+
+
+def test_warns_for_estimated_rating_and_thin_history(client):
+    c, handle = client
+    body = c.get("/recommend/newbie").json()
+    assert body["rating_estimated"] is True
+    assert "estimate" in body["warning"] and "3 solved" in body["warning"]
+    normal = c.get(f"/recommend/{handle}").json()
+    assert normal["rating_estimated"] is False and normal["warning"] is None
 
 
 def test_unknown_handle_is_404(client):
