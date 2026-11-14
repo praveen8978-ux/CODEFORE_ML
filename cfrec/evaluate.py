@@ -135,6 +135,14 @@ def evaluate(ds: Dataset, cfg: Config = None, ablate: bool = True) -> dict:
                     per_user["lightgbm_rerank"][metric], per_user[other][metric]
                 )
 
+        # Is each feature group's contribution distinguishable from noise? (full minus ablated, paired)
+        for name in per_user:
+            if name.startswith("lgbm_without_"):
+                for metric in ("ndcg", "hit"):
+                    comparisons[f"lightgbm_rerank_minus_{name}__{metric}@{k}"] = M.paired_bootstrap_diff(
+                        per_user["lightgbm_rerank"][metric], per_user[name][metric]
+                    )
+
     meta = {
         "ranker_training_window": f"{_iso(t1)} to {_iso(t2)}",
         "evaluation_window": f"{_iso(t2)} to {_iso(t_end)}",

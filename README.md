@@ -25,16 +25,34 @@ history ......... T1 ......... T2 ......... T_end
 
 ## Results
 
-Fill this in from your own run (`results/results.md`). Do not report numbers from the synthetic data.
+Real Codeforces data, downloaded 2026-11-14: 596 active rated users sampled (stratified by rating bin), 11,520 problems, 288,275 solves. Evaluation window 2026-09-15 to 2026-11-14 (60 days), ranker trained on labels from 2026-07-17 to 2026-09-15, 341 evaluated users. Values are means with 95% bootstrap CIs over users.
 
-| Method | Hit@10 | Recall@10 | nDCG@10 | Right-difficulty@10 |
-|---|---|---|---|---|
-| popularity | | | | |
-| rating_band_popularity | | | | |
-| item_cf | | | | |
-| lightgbm_rerank | | | | |
+| Method | Hit@10 | Recall@10 | nDCG@10 | Right-difficulty@10 | Coverage |
+|---|---|---|---|---|---|
+| popularity | 0.111 [0.079, 0.147] | 0.007 [0.003, 0.012] | 0.025 [0.015, 0.036] | 0.058 [0.042, 0.075] | 0.008 |
+| rating_band_popularity | 0.147 [0.111, 0.185] | 0.007 [0.005, 0.009] | 0.027 [0.018, 0.037] | 0.991 [0.982, 1.000] | 0.027 |
+| item_cf | 0.126 [0.091, 0.161] | 0.012 [0.007, 0.019] | 0.046 [0.031, 0.062] | 0.133 [0.111, 0.153] | 0.071 |
+| **lightgbm_rerank** | **0.305 [0.258, 0.358]** | **0.028 [0.020, 0.038]** | **0.082 [0.064, 0.101]** | 0.719 [0.691, 0.749] | 0.079 |
+| lgbm_without_itemcf | 0.299 [0.252, 0.349] | 0.027 [0.020, 0.037] | 0.079 [0.062, 0.098] | 0.728 [0.700, 0.758] | 0.075 |
+| lgbm_without_tags | 0.308 [0.258, 0.358] | 0.030 [0.021, 0.040] | 0.083 [0.064, 0.102] | 0.694 [0.665, 0.725] | 0.084 |
+| lgbm_without_difficulty_fit | 0.290 [0.243, 0.340] | 0.021 [0.016, 0.027] | 0.068 [0.052, 0.086] | 0.718 [0.691, 0.745] | 0.072 |
+| lgbm_without_popularity | 0.246 [0.199, 0.293] | 0.018 [0.012, 0.024] | 0.064 [0.047, 0.081] | 0.719 [0.689, 0.750] | 0.103 |
 
-Setup: __ users sampled (stratified by rating), data downloaded on __, evaluation window __.
+Paired differences, LightGBM minus baseline (mean over users, 95% bootstrap CI):
+
+| Baseline | Hit@10 | nDCG@10 |
+|---|---|---|
+| item_cf | +0.179 [0.129, 0.232] | +0.036 [0.019, 0.052] |
+| rating_band_popularity | +0.158 [0.106, 0.205] | +0.055 [0.036, 0.073] |
+| popularity | +0.194 [0.144, 0.243] | +0.057 [0.036, 0.077] |
+
+What this shows, and what it doesn't:
+
+* The re-ranker beats all three baselines on Hit@10 and nDCG@10, and every paired interval excludes zero. Against the strongest baseline, Hit@10 roughly doubles (0.147 to 0.305) and nDCG@10 rises from 0.046 (item-CF) to 0.082.
+* Absolute numbers are low. The candidate generators contain only 13.9% of the problems users went on to solve, which caps what any re-ranker can reach, and the task (picking a user's next practice problems out of about 11,000) is hard.
+* Dropping the popularity or difficulty-fit features lowers nDCG@10 the most (0.064 and 0.068 vs 0.082). Item-CF and tag features show no visible effect. The ablation intervals overlap with the full model, so treat the ablations as indicative; the evaluation script now also prints paired ablation differences.
+* Right-difficulty is 0.991 for the rating-band baseline by construction. The re-ranker's 0.719 means it also recommends problems outside the window, which is learned from what users actually solve.
+* Popularity is computed from the 596 sampled users, not from the whole site, so the popularity baseline is weaker than a site-wide count would be.
 
 ## Run it
 
