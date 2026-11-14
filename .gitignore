@@ -2,7 +2,9 @@ __pycache__/
 *.pyc
 .venv/
 .pytest_cache/
-# Downloaded Codeforces data and trained artifacts stay local
+# Downloaded Codeforces data and evaluation output stay local
 data/
-artifacts/
 results/
+# Trained artifacts stay local, except the serving model that gets deployed
+artifacts/*
+!artifacts/model.joblib

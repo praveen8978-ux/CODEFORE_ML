@@ -72,8 +72,21 @@ CFREC_ARTIFACT=artifacts/model.joblib uvicorn cfrec.api:app --port 8000
 # open http://localhost:8000
 
 # Tests (use synthetic data, no network needed)
+pip install -r requirements-dev.txt
 python -m pytest
 ```
+
+## Deploy (free, Render)
+
+1. Train on your real data and commit the serving model (about a few MB; it contains problem metadata and an anonymous solve matrix, no handles):
+   ```bash
+   python -m cfrec.train --data data/processed --out artifacts/model.joblib
+   git add artifacts/model.joblib && git commit -m "Add trained serving model" && git push
+   ```
+2. On render.com: New, Blueprint, pick this repo. `render.yaml` sets up a free Docker web service with a `/health` check.
+3. Open the service URL, enter a handle, and check the result.
+
+The service fetches the user's submissions from the Codeforces API on each request, so it depends on Codeforces accepting requests from the host's IP. Free instances sleep when idle, so the first request after a pause is slow. To refresh the model with new problems and solves, re-run the fetch, train and commit steps.
 
 To try the pipeline without downloading anything: `python -m cfrec.synth --out data/synthetic`, then pass `--data data/synthetic`. Synthetic results only prove the code runs.
 

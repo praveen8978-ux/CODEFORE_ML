@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: cf-recommender
+    runtime: docker
+    plan: free
+    healthCheckPath: /health

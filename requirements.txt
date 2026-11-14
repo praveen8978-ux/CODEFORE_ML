@@ -7,5 +7,3 @@ requests
 joblib
 fastapi
 uvicorn
-pytest
-httpx
