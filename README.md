@@ -107,7 +107,11 @@ To try the pipeline without downloading anything: `python -m cfrec.synth --out d
 ## Design notes and limitations
 
 * **Task.** The target is *practice picks*: problems published before the cutoff that the user newly solves later (mostly upsolving). It does not predict what happens in a future live contest.
-* **User sample.** Active rated users, stratified by rating bin. The sample is not the whole population.
+* **User sample.** Active rated users, stratified by rating bin, drawn when the data was downloaded. Users who were still active at download time are more likely to have solved something in the evaluation window, so absolute scores are optimistic.
+* **Evaluated users must have solved something new in the window.** Users with no new solves have no target, so they are excluded (all methods are scored on the same users, so comparisons between methods are unaffected, but absolute Hit@10 is conditional on being active).
+* **Users are not held out.** The re-ranker is trained on one time window and evaluated on a later one, but on the same users. Generalization to unseen users is not tested yet, and the baselines (which learn nothing per user) cannot benefit from this overlap while the re-ranker might.
+* **Problem ratings are the current ones** from the download date. Ratings of recent problems may not have existed yet at the cutoff, a mild form of look-ahead.
+* **One evaluation window, one seed, fixed hyperparameters.** The intervals measure variation across users, not across time windows or training seeds.
 * **Rating at the cutoff** comes from each user's rating history; users without a rating before the cutoff are excluded.
 * **Unrated problems** are not recommended (no difficulty signal).
 * **Popularity** in features and baselines is computed from the sampled users' training history, not from the API's `solvedCount`, which includes the future.
