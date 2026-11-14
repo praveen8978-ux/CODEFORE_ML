@@ -50,7 +50,16 @@ What this shows, and what it doesn't:
 
 * The re-ranker beats all three baselines on Hit@10 and nDCG@10, and every paired interval excludes zero. Against the strongest baseline, Hit@10 roughly doubles (0.147 to 0.305) and nDCG@10 rises from 0.046 (item-CF) to 0.082.
 * Absolute numbers are low. The candidate generators contain only 13.9% of the problems users went on to solve, which caps what any re-ranker can reach, and the task (picking a user's next practice problems out of about 11,000) is hard.
-* Dropping the popularity or difficulty-fit features lowers nDCG@10 the most (0.064 and 0.068 vs 0.082). Item-CF and tag features show no visible effect. The ablation intervals overlap with the full model, so treat the ablations as indicative; the evaluation script now also prints paired ablation differences.
+* Paired ablations (full model minus the model without that feature group, mean over users with 95% bootstrap CI):
+
+  | Feature group removed | nDCG@10 drop | Hit@10 drop |
+  |---|---|---|
+  | popularity | +0.018 [0.005, 0.030] | +0.059 [0.012, 0.103] |
+  | difficulty fit | +0.014 [0.004, 0.024] | +0.015 [-0.021, 0.050] |
+  | item-CF features | +0.003 [-0.007, 0.012] | +0.006 [-0.023, 0.035] |
+  | tag affinity | -0.001 [-0.009, 0.007] | -0.003 [-0.041, 0.032] |
+
+  Popularity and difficulty-fit features each contribute measurably to nDCG@10 (intervals exclude zero; for difficulty fit, Hit@10 does not). The item-CF and tag features add nothing measurable once the others are present. This only removes the features: item-CF still generates candidates, and no test here shows the generator is unnecessary.
 * Right-difficulty is 0.991 for the rating-band baseline by construction. The re-ranker's 0.719 means it also recommends problems outside the window, which is learned from what users actually solve.
 * Popularity is computed from the 596 sampled users, not from the whole site, so the popularity baseline is weaker than a site-wide count would be.
 
