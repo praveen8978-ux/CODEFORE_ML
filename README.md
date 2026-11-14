@@ -80,6 +80,9 @@ python -m cfrec.train --data data/processed --out artifacts/model.joblib
 CFREC_ARTIFACT=artifacts/model.joblib uvicorn cfrec.api:app --port 8000
 # open http://localhost:8000
 
+# Model-only latency over real users (no Codeforces calls): prints p50 / p95 / p99
+python -m cfrec.benchmark --data data/processed --model artifacts/model.joblib --n 200
+
 # Tests (use synthetic data, no network needed)
 pip install -r requirements-dev.txt
 python -m pytest
